@@ -30,10 +30,28 @@ extern "C" {
 
 #ifndef CF_WINDOWS
 #include <time.h>
+
+//factor out bits/time.h as it is not existant on OSX.
+#ifndef OSX
 #include <bits/time.h>
+#endif
+
+#ifdef OSX
+#define CLOCK_PROCESS_CPUTIME_ID    2
+#define CLOCK_REALTIME              0
+#define CLOCK_MONOTONIC             1
+#endif
+
 #else // ifdef CF_WINDOWS
 #include <citrusleaf/cf_clock_win.h>
 #endif // ifndef CF_WINDOWS
+
+
+#ifdef OSX // Macs aren't posix compliant
+#include <sys/time.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#endif
 
 /******************************************************************************
  * TYPES

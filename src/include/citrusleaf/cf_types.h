@@ -24,9 +24,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include <unistd.h>   
-#include <asm/byteorder.h>
+#include <unistd.h>
 
+ #ifdef OSX
+//====================================================================
+// Mac OS
+//
+
+#include <libkern/OSByteOrder.h>
+
+#define cf_byteswap64p(_p) (OSSwapBigToHostInt64( *(uint64_t *) _p ))
+
+#else
+#include <asm/byteorder.h>
+#endif
 
 #ifndef CF_WINDOWS
 /******************************************************************************
