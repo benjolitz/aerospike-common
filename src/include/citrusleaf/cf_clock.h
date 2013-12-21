@@ -29,29 +29,38 @@ extern "C" {
 #endif
 
 #ifndef CF_WINDOWS
-#include <time.h>
+    #include <time.h>
+    #ifdef OSX
+        #include <sys/time.h>
+        #include <mach/mach.h>
+        #include <mach/mach_time.h>
+        #include <mach/clock.h>
 
-//factor out bits/time.h as it is not existant on OSX.
-#ifndef OSX
-#include <bits/time.h>
+        #define CLOCK_PROCESS_CPUTIME_ID    2
+        #define CLOCK_REALTIME              0
+        #define CLOCK_MONOTONIC             1
+        /*
+        Compatibility hack courtesy of https://gist.github.com/jbenet/1087739
+        */
+        static inline int clock_gettime(int clock_type, struct timespec* ts) {
+            clock_serv_t cclock;
+            mach_timespec_t mts;
+            host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+            clock_get_time(cclock, &mts);
+            mach_port_deallocate(mach_task_self(), cclock);
+            ts->tv_sec = mts.tv_sec;
+            ts->tv_nsec = mts.tv_nsec;
+            return 0;
+        }
+    #else
+        #include <bits/time.h>
+    #endif
+/* ifdef CF_WINDOWS */
+#else
+    #include <citrusleaf/cf_clock_win.h>
 #endif
+/* ifndef CF_WINDOWS */
 
-#ifdef OSX
-#define CLOCK_PROCESS_CPUTIME_ID    2
-#define CLOCK_REALTIME              0
-#define CLOCK_MONOTONIC             1
-#endif
-
-#else // ifdef CF_WINDOWS
-#include <citrusleaf/cf_clock_win.h>
-#endif // ifndef CF_WINDOWS
-
-
-#ifdef OSX // Macs aren't posix compliant
-#include <sys/time.h>
-#include <mach/mach.h>
-#include <mach/mach_time.h>
-#endif
 
 /******************************************************************************
  * TYPES

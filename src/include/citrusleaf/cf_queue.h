@@ -25,7 +25,7 @@
 #include <pthread.h>
 #include <stddef.h>
 #include <stdint.h>
-
+#include <citrusleaf/cf_clock.h>
 #include <citrusleaf/cf_types.h>
 
 #ifdef __cplusplus
